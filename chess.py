@@ -1,10 +1,3 @@
-# Importing Modules
-
-from io import BytesIO
-import numpy as np
-
-
-
 # The above code is defining the initial setup of a chessboard with the starting positions of the
 # pieces for a game of chess. It initializes lists and dictionaries to represent the white and black
 # pieces on the board, with their respective locations. The white pieces are represented by lowercase
