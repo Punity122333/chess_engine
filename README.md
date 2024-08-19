@@ -1,5 +1,10 @@
 # chess_engine
-A Chess Engine.
+
+A chess game in Python.
+
+# About the Engine
+
+The Chess engine is in development and will be uploaded once the first prototype is done.
 
 # Dependencies:
 
