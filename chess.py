@@ -378,7 +378,7 @@ def check_king(current_board: dict, moves_list: list):
     
     :param current_board: The `current_board` parameter is a dictionary representing the current state
     of a chess board. The keys are tuples representing the coordinates of each square on the board, and
-    the values are the pieces occupying those squares (e.g., "k" for black king, "K" for white king, etc
+    the values are the pieces occupying those squares (e.g., "k" for white king, "K" for black king, etc
     :type current_board: dict
     :param moves_list: The `moves_list` parameter is a list that contains moves for each player. It is a
     dictionary where the keys are 'w' for white player and 'b' for black player. The values are lists of
@@ -446,7 +446,7 @@ def make_move(start_pos: tuple, end_pos: tuple,current_board : dict,can_passant:
     :param current_board: The `current_board` parameter is a dictionary representing the current state
     of the game board. The keys in the dictionary are tuples representing the positions on the board,
     and the values are strings representing the pieces at those positions. For example,
-    `current_board[(0, 0)]` would give you
+    `current_board[(0, 0)]` would give you the piece at position (0, 0)
     :type current_board: dict
     :param player: The `player` parameter in the `make_move` function represents the player who is
     making the move. It is a string that can have a value of either 'w' or 'b', indicating whether it is
