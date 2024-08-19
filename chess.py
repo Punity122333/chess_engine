@@ -268,12 +268,13 @@ def check_bishop(current_board: dict,moves_list: list, value="bishop"):
                                 moves_list['w'].append((k, (k[0] + (chain * offset[0] + 1), k[1] + (chain * offset[1] - 1))))
                             else:
                                 moves_list['w'].append((k, (k[0] + (chain * offset[0] - 1), k[1] + (chain * offset[1] - 1))))
+                        
                         if (k[0] + chain * offset[0] - offset[0], k[1] + chain * offset[1] - offset[1]) in current_board and current_board[(k[0] + chain * offset[0] - offset[0], k[1] + chain * offset[1] - offset[1])].isupper():
                             
                             check = False
                             chain += 1
-                            moves_list['b'].append((k, (k[0] + (chain * offset[0] - offset[0] - offset[0]), k[1] + (chain * offset[1] - offset[1] - offset[1]))))
-                            
+                            moves_list['w'].append((k, (k[0] + (chain * offset[0] - offset[0] - offset[0]), k[1] + (chain * offset[1] - offset[1] - offset[1]))))
+                            break
                     else:
                         check = False
         chain = 1
@@ -300,12 +301,13 @@ def check_bishop(current_board: dict,moves_list: list, value="bishop"):
                                 moves_list['b'].append((k, (k[0] + (chain * offset[0] + 1), k[1] + (chain * offset[1] - 1))))
                             else:
                                 moves_list['b'].append((k, (k[0] + (chain * offset[0] - 1), k[1] + (chain * offset[1] - 1))))
-                                
                         if (k[0] + chain * offset[0] - offset[0], k[1] + chain * offset[1] - offset[1]) in current_board and current_board[(k[0] + chain * offset[0] - offset[0], k[1] + chain * offset[1] - offset[1])].islower():
                             
                             check = False
                             chain += 1
                             moves_list['b'].append((k, (k[0] + (chain * offset[0] - offset[0] - offset[0]), k[1] + (chain * offset[1] - offset[1] - offset[1]))))
+                            break    
+                        
                     else:
                         check = False
                         
@@ -378,7 +380,7 @@ def check_king(current_board: dict, moves_list: list):
     
     :param current_board: The `current_board` parameter is a dictionary representing the current state
     of a chess board. The keys are tuples representing the coordinates of each square on the board, and
-    the values are the pieces occupying those squares (e.g., "k" for white king, "K" for black king, etc
+    the values are the pieces occupying those squares (e.g., "k" for black king, "K" for white king, etc
     :type current_board: dict
     :param moves_list: The `moves_list` parameter is a list that contains moves for each player. It is a
     dictionary where the keys are 'w' for white player and 'b' for black player. The values are lists of
@@ -391,7 +393,7 @@ def check_king(current_board: dict, moves_list: list):
             for offset in king_offsets:
                 is_attacked = False
                 if (k[0] + offset[0], k[1] + offset[1]) in current_board and (current_board[(k[0] + offset[0], k[1] + offset[1])].isupper() or current_board[(k[0] + offset[0], k[1] + offset[1])] == ""):
-                    for mov in moves_list['w']:
+                    for mov in moves_list['b']:
                         if mov[1] == (k[0] + offset[0], k[1] + offset[1]):
                             is_attacked = True
                     if not is_attacked:
@@ -400,7 +402,7 @@ def check_king(current_board: dict, moves_list: list):
             for offset in king_offsets:
                 is_attacked = False
                 if (k[0] + offset[0], k[1] + offset[1]) in current_board and (current_board[(k[0] + offset[0], k[1] + offset[1])].islower() or current_board[(k[0] + offset[0], k[1] + offset[1])] == ""):
-                    for mov in moves_list['b']:
+                    for mov in moves_list['w']:
                         if mov[1] == (k[0] + offset[0], k[1] + offset[1]):
                             is_attacked = True
                     if not is_attacked:
@@ -446,7 +448,7 @@ def make_move(start_pos: tuple, end_pos: tuple,current_board : dict,can_passant:
     :param current_board: The `current_board` parameter is a dictionary representing the current state
     of the game board. The keys in the dictionary are tuples representing the positions on the board,
     and the values are strings representing the pieces at those positions. For example,
-    `current_board[(0, 0)]` would give you the piece at position (0, 0)
+    `current_board[(0, 0)]` would give you
     :type current_board: dict
     :param player: The `player` parameter in the `make_move` function represents the player who is
     making the move. It is a string that can have a value of either 'w' or 'b', indicating whether it is
@@ -570,19 +572,20 @@ def remove_illegal_moves(current_board: dict, moves_list: dict, can_passant: lis
     
     if player == 'w':
         for mov in moves_list_copy[player]:
-            if current_board[mov[0]].isupper():
+            if current_board[mov[0]].isupper() or current_board[mov[0]] == "":
                 moves_list_copy[player].remove(mov)
             if current_board[mov[0]] == 'p':
                 if mov[0][1] - mov[1][1] == 2 and mov[0][0] == mov[1][0] and current_board[mov[1]].isupper():
                     moves_list_copy[player].remove(mov)
     if player == 'b':
         for mov in moves_list_copy[player]:
-            if current_board[mov[0]].islower():
+            if current_board[mov[0]].islower() or current_board[mov[0]] == "":
                 
                 moves_list_copy[player].remove(mov)
             if current_board[mov[0]] == 'P':
                 if mov[0][1] - mov[1][1] == -2 and mov[0][0] == mov[1][0] and current_board[mov[1]].islower():
                     moves_list_copy[player].remove(mov)
+    
     
     
     return moves_list_copy
@@ -667,9 +670,7 @@ def check_move(start_pos: tuple, end_pos: tuple, player:str='w') -> bool:
     `start_pos` to `end_pos` is valid for the specified player ('w' by default).
     """
     return (start_pos, end_pos) in moves_list[player]   
-
-    
-        
+      
 player = 'w'
 prev_board = board.copy()
 check_bishop(board, moves_list)
@@ -687,52 +688,46 @@ while True:
         opponent = 'b' if player == 'w' else 'w'
         
         print_board()
-        
-        moves_list = remove_illegal_moves(board, moves_list, can_passant, opponent)
-        moves_list = remove_illegal_moves(board, moves_list, can_passant, player)
-        
-        print(player)
         print("White's turn!",end=" ") if player == 'w' else print("Black's turn!",end=" ")
         print(colored("Enter your move (e.g e2e4):","yellow"))
-        
         
         move = list(input().split(', '))
         if move[0] == 'quit':
             break
         move = parse_move('.'.join(move))
-        
         if not check_move(move[0], move[1], player):
-            print("Move not possible!")
+            print(colored("Move not possible!","red"))
             continue
         prev_moves_list = moves_list.copy()
         prev_board = board.copy()
         make_move(move[0], move[1], board, can_passant, player)
         opponent = 'w' if player == 'b' else 'b'
+        
         check_bishop(board, moves_list)
         check_knight(board, moves_list)
         check_pawn(board, moves_list)
         check_rook(board, moves_list)
         check_queen(board, moves_list)
         check_king(board, moves_list)
+        
         can_passant, moves_list =  check_en_passant(board, prev_board, moves_list, opponent)[0], check_en_passant(board, prev_board, moves_list, opponent)[1]
-        
-        
         moves_list = remove_illegal_moves(board, moves_list, can_passant, opponent)
         moves_list = remove_illegal_moves(board, moves_list, can_passant, player)
         
+        check_king(board, moves_list)
         moves_list[opponent] = list(set(moves_list[opponent]))
-        
-        
+        moves_list[player] = list(set(moves_list[player]))
+            
         if moves_list[opponent] == []:
             print_board()
             print(colored(f"White's king is in checkmate! Black wins!","light_green")) if opponent == 'w' else print(colored(f"Black's king is in checkmate! White wins!","light_green"))
             break
-                
         
         player = 'b' if player == 'w' else 'w'
     except Exception as e:
         print(colored(f"An error occurred: {e}", "red"))
     
-print("Thank you for playing chess!")    
+print(colored("Thank you for playing chess!","light_cyan")) 
+print()   
 
         
