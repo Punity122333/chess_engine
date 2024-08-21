@@ -202,7 +202,7 @@ def check_rook(current_board: dict ,moves_list: dict, value="rook"):
                             
                             check = False
                             chain += 1
-                            moves_list['b'].append((k, (k[0] + (chain * offset[0] - offset[0] - offset[0]), k[1] + (chain * offset[1] - offset[1] - offset[1]))))
+                            moves_list['w'].append((k, (k[0] + (chain * offset[0] - offset[0] - offset[0]), k[1] + (chain * offset[1] - offset[1] - offset[1]))))
                     else:
                         check = False
         chain = 1
@@ -295,7 +295,7 @@ def check_bishop(current_board: dict,moves_list: list, value="bishop"):
                             chain += 1
                             if (k, (k[0] + (chain * offset[0] - offset[0] - offset[0]), k[1] + (chain * offset[1] - offset[1] - offset[1]))) == ((5,7),(2,4)):
                                 raise RuntimeError("Error")
-                            moves_list['b'].append((k, (k[0] + (chain * offset[0] - offset[0] - offset[0]), k[1] + (chain * offset[1] - offset[1] - offset[1]))))
+                            moves_list['w'].append((k, (k[0] + (chain * offset[0] - offset[0] - offset[0]), k[1] + (chain * offset[1] - offset[1] - offset[1]))))
                     else:
                         check = False
                         
@@ -357,7 +357,7 @@ def check_queen(current_board: dict,moves_list: list ,value="queen"):
                             
                             check = False
                             chain += 1
-                            moves_list['b'].append((k, (k[0] + (chain * offset[0] - offset[0] - offset[0]), k[1] + (chain * offset[1] - offset[1] - offset[1]))))
+                            moves_list['w'].append((k, (k[0] + (chain * offset[0] - offset[0] - offset[0]), k[1] + (chain * offset[1] - offset[1] - offset[1]))))
                     else:
                         check = False
                         
@@ -381,19 +381,13 @@ def check_king(current_board: dict, moves_list: list):
             for offset in king_offsets:
                 is_attacked = False
                 if (k[0] + offset[0], k[1] + offset[1]) in current_board and (current_board[(k[0] + offset[0], k[1] + offset[1])].isupper() or current_board[(k[0] + offset[0], k[1] + offset[1])] == ""):
-                    for mov in moves_list['b']:
-                        if mov[1] == (k[0] + offset[0], k[1] + offset[1]):
-                            is_attacked = True
-                    if not is_attacked:
+                    
                         moves_list['w'].append((k, (k[0] + offset[0], k[1] + offset[1])))
         if v == "K":
             for offset in king_offsets:
                 is_attacked = False
                 if (k[0] + offset[0], k[1] + offset[1]) in current_board and (current_board[(k[0] + offset[0], k[1] + offset[1])].islower() or current_board[(k[0] + offset[0], k[1] + offset[1])] == ""):
-                    for mov in moves_list['w']:
-                        if mov[1] == (k[0] + offset[0], k[1] + offset[1]):
-                            is_attacked = True
-                    if not is_attacked:
+                    
                         moves_list['b'].append((k, (k[0] + offset[0], k[1] + offset[1])))
                     
     
@@ -499,6 +493,14 @@ def find_king_pos(current_board: dict, player: str) -> list:
                 poses.append((k[0] + offset[0], k[1] + offset[1])) if ((k[0] + offset[0], k[1] + offset[1]) in current_board and not current_board[(k[0] + offset[0], k[1] + offset[1])].isupper()) else None
     return poses
         
+def find_specific_king_pos(current_board: dict, player:str) -> tuple:
+    for k, v in current_board.items():
+        if player == 'b':
+            if v == 'K':
+                return k
+        if player == 'w':
+            if v == 'k':
+                return k
                     
 def remove_illegal_moves(current_board: dict, moves_list: dict, can_passant: list, castles: list, player: str) -> dict:
     """
@@ -524,7 +526,7 @@ def remove_illegal_moves(current_board: dict, moves_list: dict, can_passant: lis
     moves_list_copy = moves_list.copy()
     moves_list2 = {'w':[], 'b':[]}
     king_pos = find_king_pos(current_board2, player)
-    
+   
     opponent = 'w' if player == 'b' else 'b'
     deleted_moves = []
     for mov in moves_list_copy[player]:
@@ -543,14 +545,13 @@ def remove_illegal_moves(current_board: dict, moves_list: dict, can_passant: lis
         
         for mov2 in moves_list2[opponent]:
             
-            if mov2[1] in king_pos:
-                if player == 'w' and not current_board[mov2[0]].islower():
-                    
-                    deleted_moves.append(mov)
-                if player == 'b' and not current_board[mov2[0]].isupper():
-        
-                    deleted_moves.append(mov)
+            if mov2[1] == find_specific_king_pos(current_board2, player):
+                deleted_moves.append(mov)
+                
     
+    for mov in moves_list_copy[player]:
+        if current_board[mov[0]] == "":
+            deleted_moves.append(mov)
     
     for mov in deleted_moves:
         if mov in moves_list_copy[player]:
@@ -572,12 +573,7 @@ def remove_illegal_moves(current_board: dict, moves_list: dict, can_passant: lis
                 pass
                 
     opponent = 'w' if player == 'b' else 'b'
-    for mov in moves_list_copy[player]:
-        if mov in castles:
-            continue
-        for mov2 in moves_list_copy[opponent]:
-            if mov2[1] == mov[1]:
-                moves_list_copy[opponent].remove(mov2)
+    
     
     if player == 'w':
         for mov in moves_list_copy[player]:
@@ -598,7 +594,7 @@ def remove_illegal_moves(current_board: dict, moves_list: dict, can_passant: lis
             if current_board[mov[0]] == 'P':
                 if mov[0][1] - mov[1][1] == -2 and mov[0][0] == mov[1][0] and current_board[mov[1]].islower():
                     moves_list_copy[player].remove(mov)
-    print(king_pos)
+    
     moves_list_copy2 = {'w':[],'b':[]}
     check_bishop(board, moves_list_copy2)
     check_knight(board, moves_list_copy2)
@@ -694,7 +690,26 @@ def check_move(start_pos: tuple, end_pos: tuple, player:str='w') -> bool:
     return (start_pos, end_pos) in moves_list[player]   
 
 def update_kings_and_rooks_moved(start_pos: tuple, end_pos: tuple,player: str='w') -> list:
+    """
+    This Python function updates the status of kings and rooks based on their movement on a chessboard.
     
+    :param start_pos: The `start_pos` parameter in the `update_kings_and_rooks_moved` function
+    represents the starting position of a chess piece on the board. It is a tuple containing the
+    coordinates (row, column) of the square where the piece is located before it moves
+    :type start_pos: tuple
+    :param end_pos: The `end_pos` parameter in the `update_kings_and_rooks_moved` function represents
+    the ending position of a piece on a chessboard. It is a tuple containing the coordinates (row,
+    column) where the piece will be moved to
+    :type end_pos: tuple
+    :param player: The `player` parameter in the `update_kings_and_rooks_moved` function represents the
+    player whose move is being processed. It can have a value of either 'w' for white player or 'b' for
+    black player. This parameter helps determine which player is making the move and accordingly,
+    defaults to w
+    :type player: str (optional)
+    :return: The function `update_kings_and_rooks_moved` returns a list containing the updated values of
+    `has_kings_moved` and `has_rooks_moved` after processing the given `start_pos`, `end_pos`, and
+    `player` inputs.
+    """
     if player == 'b' and has_rooks_moved[0] == 0 and end_pos == (0,7):
         has_rooks_moved[0] = -1
     if start_pos == (0, 7) and has_rooks_moved[0] == 0:
@@ -722,7 +737,7 @@ def update_kings_and_rooks_moved(start_pos: tuple, end_pos: tuple,player: str='w
 
 def check_castling(current_board: dict, moves_list: dict, has_kings_moved: list, has_rooks_moved: list, player:str = 'w') -> list:
     castles = []
-    print(has_kings_moved, has_rooks_moved)
+    
     if current_board[(5,7)] == '' and current_board[(6,7)] == '' and has_kings_moved[0] == 0 and has_rooks_moved[1] == 0:
         moves_list[player].append(((4,7),(6,7)))
         castles.append(((4,7),(6,7)))
@@ -738,11 +753,6 @@ def check_castling(current_board: dict, moves_list: dict, has_kings_moved: list,
     
     return [castles, moves_list]
     
-
-            
-    
-    
-    
 player = 'w'
 prev_board = board.copy()
 check_bishop(board, moves_list)
@@ -753,6 +763,7 @@ check_queen(board, moves_list)
 check_king(board, moves_list)
 can_passant, moves_list =  check_en_passant(board, prev_board, moves_list, player)[0], check_en_passant(board, prev_board, moves_list, player)[1]
 castles, moves_list = check_castling(board, moves_list, has_kings_moved, has_rooks_moved, player)[0], check_castling(board, moves_list, has_kings_moved, has_rooks_moved, player)[1]
+os.system("cls")
 
 # Game Loop
 
@@ -771,13 +782,14 @@ while True:
         move = parse_move('.'.join(move))
         
         if not check_move(move[0], move[1], player):
+            os.system("cls")
             print(colored("Move not possible!","red"))
             continue
         prev_moves_list = moves_list.copy()
         prev_board = board.copy()
         make_move(move[0], move[1], board, can_passant, castles, player)
         opponent = 'w' if player == 'b' else 'b'
-        
+        os.system("cls")
         check_bishop(board, moves_list)
         check_knight(board, moves_list)
         check_pawn(board, moves_list)
@@ -787,10 +799,17 @@ while True:
         has_kings_moved, has_rooks_moved = update_kings_and_rooks_moved(move[0], move[1], player)[0], update_kings_and_rooks_moved(move[0], move[1], player)[1]
         can_passant, moves_list =  check_en_passant(board, prev_board, moves_list, opponent)[0], check_en_passant(board, prev_board, moves_list, opponent)[1]
         castles, moves_list = check_castling(board, moves_list, has_kings_moved, has_rooks_moved, player)[0], check_castling(board, moves_list, has_kings_moved, has_rooks_moved, player)[1]
-        print(castles)
+        
         
         moves_list = remove_illegal_moves(board, moves_list, can_passant, castles, opponent)
         moves_list = remove_illegal_moves(board, moves_list, can_passant, castles, player)
+        for mov in moves_list[opponent]:
+            if opponent == 'w':
+                if board[mov[0]].isupper():
+                    moves_list[opponent].remove(mov)
+            if opponent == 'b':
+                if board[mov[0]].islower():
+                    moves_list[opponent].remove(mov)
         
         moves_list[opponent] = list(set(moves_list[opponent]))
         moves_list[player] = list(set(moves_list[player]))
@@ -799,9 +818,10 @@ while True:
             print_board()
             print(colored(f"White's king is in checkmate! Black wins!","light_green")) if opponent == 'w' else print(colored(f"Black's king is in checkmate! White wins!","light_green"))
             break
-        
+
         player = 'b' if player == 'w' else 'w'
     except Exception as e:
+        os.system("cls")
         print(colored(f"An error occurred: {e}", "red"))
     
 print(colored("Thank you for playing chess!","light_cyan")) 
