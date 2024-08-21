@@ -736,6 +736,34 @@ def update_kings_and_rooks_moved(start_pos: tuple, end_pos: tuple,player: str='w
       
 
 def check_castling(current_board: dict, moves_list: dict, has_kings_moved: list, has_rooks_moved: list, player:str = 'w') -> list:
+    """
+    The function `check_castling` checks for valid castling moves in chess based on the current board
+    position and piece movement history.
+    
+    :param current_board: The `check_castling` function you provided checks for valid castling moves in
+    a chess game based on the current board position, the moves made so far, and whether the kings and
+    rooks have moved. It then updates the moves list with the valid castling moves and returns the list
+    of cast
+    :type current_board: dict
+    :param moves_list: The `moves_list` parameter in the `check_castling` function is a dictionary that
+    stores the moves made by each player. It has the following structure:
+    :type moves_list: dict
+    :param has_kings_moved: The `has_kings_moved` parameter is a list that keeps track of whether the
+    kings have moved in the game. It is a list containing two elements, where `has_kings_moved[0]`
+    corresponds to the white king and `has_kings_moved[1]`
+    :type has_kings_moved: list
+    :param has_rooks_moved: The `has_rooks_moved` parameter is a list that keeps track of whether the
+    rooks have moved for each player. It is used in the `check_castling` function to determine if
+    castling is a valid move based on the current board position and the movement history of the rooks
+    :type has_rooks_moved: list
+    :param player: The `player` parameter in the `check_castling` function represents the current player
+    making the move. It is a string parameter that can have a value of either 'w' (white player) or 'b'
+    (black player) to indicate which player's turn it is, defaults to w
+    :type player: str (optional)
+    :return: The function `check_castling` returns a list containing two elements: the list of castling
+    moves that are possible based on the current board state and the list of moves made so far for the
+    player specified.
+    """
     castles = []
     
     if current_board[(5,7)] == '' and current_board[(6,7)] == '' and has_kings_moved[0] == 0 and has_rooks_moved[1] == 0:
