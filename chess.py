@@ -781,7 +781,7 @@ os.system("cls")
 # Game Loop
 
 while True:
-    #try:
+    try:
         
         opponent = 'b' if player == 'w' else 'w'
         
@@ -833,9 +833,9 @@ while True:
             break
 
         player = 'b' if player == 'w' else 'w'
-    #except Exception as e:
-        #os.system("cls")
-        #print(colored(f"An error occurred: {e}", "red"))
+    except Exception as e:
+        os.system("cls")
+        print(colored(f"An error occurred: {e}", "red"))
     
 print(colored("Thank you for playing chess!","light_cyan")) 
 print()   
