@@ -10,8 +10,8 @@ import os
 # knights, bishops, queens, kings, and pawns.
 white_pieces = ['rook', 'knight', 'bishop', 'queen', 'king', 'bishop', 'knight', 'rook',
                 'pawn', 'pawn', 'pawn', 'pawn', 'pawn', 'pawn', 'pawn', 'pawn']
-black_locations = {(0, 0):'', (1, 0):u'N', (2, 0):u'B', (3, 0):u'Q', (4, 0):u'K', (5, 0):'B', (6, 0):u'N', (7, 0):u'R',
-                   (0, 1):'', (1, 1):'P', (2, 1):'P', (3, 1):'P', (4, 1):'P', (5, 1):'P', (6, 1):'P', (7, 1):'P'}
+black_locations = {(0, 0):'R', (1, 0):u'N', (2, 0):u'B', (3, 0):u'Q', (4, 0):u'K', (5, 0):'B', (6, 0):u'N', (7, 0):u'R',
+                   (0, 1):'P', (1, 1):'P', (2, 1):'P', (3, 1):'P', (4, 1):'P', (5, 1):'P', (6, 1):'P', (7, 1):'P'}
 white_locations = {(0, 7):'r', (1, 7):'n', (2, 7):'b', (3, 7):u'q', (4, 7):u'k', (5, 7):'b', (6, 7):'n', (7, 7):'r',
                    (0, 6):'p', (1, 6):'p', (2, 6):'p', (3, 6):'p', (4, 6):'p', (5, 6):'p', (6, 6):'p', (7, 6):'p'}
 black_pieces = ['rook', 'knight', 'bishop', 'queen', 'king', 'bishop', 'knight', 'rook',
@@ -781,7 +781,7 @@ os.system("cls")
 # Game Loop
 
 while True:
-    try:
+    #try:
         
         opponent = 'b' if player == 'w' else 'w'
         
@@ -833,9 +833,9 @@ while True:
             break
 
         player = 'b' if player == 'w' else 'w'
-    except Exception as e:
-        os.system("cls")
-        print(colored(f"An error occurred: {e}", "red"))
+    #except Exception as e:
+        #os.system("cls")
+        #print(colored(f"An error occurred: {e}", "red"))
     
 print(colored("Thank you for playing chess!","light_cyan")) 
 print()   
