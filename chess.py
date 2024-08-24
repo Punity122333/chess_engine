@@ -765,6 +765,15 @@ def check_castling(current_board: dict, moves_list: dict, has_kings_moved: list,
         castles.append(((4,0),(2,0)))
     
     return [castles, moves_list]
+
+def is_in_check(current_board: dict, moves_list: dict, player: str):
+    opponent = 'w' if player == 'b' else 'b'
+    for mov in moves_list[opponent]:
+        if mov[1] == find_specific_king_pos(current_board, player):
+            return True
+    return False
+        
+    
     
 player = 'w'
 prev_board = board.copy()
@@ -781,7 +790,7 @@ os.system("cls")
 # Game Loop
 
 while True:
-    #try:
+    try:
         
         opponent = 'b' if player == 'w' else 'w'
         
@@ -828,14 +837,19 @@ while True:
         moves_list[player] = list(set(moves_list[player]))
             
         if moves_list[opponent] == []:
-            print_board()
-            print(colored(f"White's king is in checkmate! Black wins!","light_green")) if opponent == 'w' else print(colored(f"Black's king is in checkmate! White wins!","light_green"))
-            break
+            if is_in_check(board, moves_list, opponent):
+                print_board()
+                print(colored(f"White's king is in checkmate! Black wins!","light_green")) if opponent == 'w' else print(colored(f"Black's king is in checkmate! White wins!","light_green"))
+                break
+            else:
+                print_board()
+                print(colored("It's a stalemate!", "light_green"))
+                break
 
         player = 'b' if player == 'w' else 'w'
-    #except Exception as e:
-        #os.system("cls")
-        #print(colored(f"An error occurred: {e}", "red"))
+    except Exception as e:
+        os.system("cls")
+        print(colored(f"An error occurred: {e}", "red"))
     
 print(colored("Thank you for playing chess!","light_cyan")) 
 print()   
