@@ -87,7 +87,7 @@ def parse_move(mov: str) -> tuple:
     a move.
     """
     
-    mov = list(mov  )
+    mov = list(mov)
     start = parse_coordinate(mov[0] +mov[1])
     end = parse_coordinate(mov[2] + mov[3])
     return (start, end)
@@ -271,7 +271,7 @@ def check_bishop(current_board: dict,moves_list: list, value="bishop"):
                         if (k[0] + chain * offset[0], k[1] + chain * offset[1]) in current_board and current_board[(k[0] + chain * offset[0], k[1] + chain * offset[1])].islower():
                             check = False
                             chain += 1
-                            moves_list['b'].append((k, (k[0] + (chain * offset[0] - offset[1]), k[1] + (chain * offset[1] - offset[1]))))
+                            moves_list['b'].append((k, (k[0] + (chain * offset[0] - offset[0] - offset[0]), k[1] + (chain * offset[1] - offset[1] - offset[1]))))
                     else:
                         check = False
         if v == "b":
@@ -293,8 +293,6 @@ def check_bishop(current_board: dict,moves_list: list, value="bishop"):
                             
                             check = False
                             chain += 1
-                            if (k, (k[0] + (chain * offset[0] - offset[0] - offset[0]), k[1] + (chain * offset[1] - offset[1] - offset[1]))) == ((5,7),(2,4)):
-                                raise RuntimeError("Error")
                             moves_list['w'].append((k, (k[0] + (chain * offset[0] - offset[0] - offset[0]), k[1] + (chain * offset[1] - offset[1] - offset[1]))))
                     else:
                         check = False
@@ -334,10 +332,12 @@ def check_queen(current_board: dict,moves_list: list ,value="queen"):
                         
                         if check:
                             moves_list['b'].append((k, (k[0] + (chain * offset[0] - offset[0]), k[1] + (chain * offset[1] - offset[1]))))
-                        if (k[0] + chain * offset[0], k[1] + chain * offset[1]) in current_board and current_board[(k[0] + chain * offset[0], k[1] + chain * offset[1])].islower():
+                            
+                        if (k[0] + chain * offset[0] - offset[0], k[1] + chain * offset[1] - offset[1]) in current_board and current_board[(k[0] + chain * offset[0] - offset[0], k[1] + chain * offset[1] - offset[1])].islower():
+                            
                             check = False
                             chain += 1
-                            moves_list['b'].append((k, (k[0] + (chain * offset[0] - offset[1]), k[1] + (chain * offset[1] - offset[1]))))
+                            moves_list['b'].append((k, (k[0] + (chain * offset[0] - offset[0] - offset[0]), k[1] + (chain * offset[1] - offset[1] - offset[1]))))
                     else:
                         check = False
         if v == "q":
@@ -566,7 +566,7 @@ def remove_illegal_moves(current_board: dict, moves_list: dict, can_passant: lis
             
             if mov2[1] == find_specific_king_pos(current_board2, player):
                 deleted_moves.append(mov)
-                
+    
     for mov in moves_list[player]:
         if player == 'w' and current_board[mov[1]].islower():
             deleted_moves.append(mov)
@@ -835,7 +835,7 @@ while True:
         
         moves_list[opponent] = list(set(moves_list[opponent]))
         moves_list[player] = list(set(moves_list[player]))
-            
+        
         if moves_list[opponent] == []:
             if is_in_check(board, moves_list, opponent):
                 print_board()
