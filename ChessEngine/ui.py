@@ -1,5 +1,21 @@
 import pygame
 import sys
+from termcolor import colored
+import os
+import subprocess
+from pawn import check_pawn
+from parsing import parse_move
+from knight import check_knight
+from rook import check_rook
+from bishop import check_bishop
+from queen import check_queen
+from king import check_king, find_king_pos, find_specific_king_pos
+from move import make_move
+from illegal_removal import remove_illegal_moves
+from specialmoves import check_castling, check_en_passant
+from print_board import print_board
+from utility import check_move, update_kings_and_rooks_moved, is_in_check
+
 
 white_pieces = ['rook', 'knight', 'bishop', 'queen', 'king', 'bishop', 'knight', 'rook',
                 'pawn', 'pawn', 'pawn', 'pawn', 'pawn', 'pawn', 'pawn', 'pawn']
@@ -9,10 +25,15 @@ white_locations = {(0, 7):'r', (1, 7):'n', (2, 7):'b', (3, 7):'q', (4, 7):'k', (
                    (0, 6):'p', (1, 6):'p', (2, 6):'p', (3, 6):'p', (4, 6):'p', (5, 6):'p', (6, 6):'p', (7, 6):'p'}
 black_pieces = ['rook', 'knight', 'bishop', 'queen', 'king', 'bishop', 'knight', 'rook',
                 'pawn', 'pawn', 'pawn', 'pawn', 'pawn', 'pawn', 'pawn', 'pawn']
-
+board = {(i, j): '' for i in range(8) for j in range(8)}
+for k, v in board.items():
+    if k in white_locations:
+        board[k] = white_locations[k]
+    if k in black_locations:
+        board[k] = black_locations[k]
         
-
-def blit_pieces(current_board: dict, image: pygame.image, window: pygame.display):
+window = pygame.display.set_mode((800,800))
+def blit_pieces(current_board: dict, image: pygame.image, window: pygame.display, dragging: bool = False, dragged_piece = None):
     window_size = 800
     square_size = window_size // 8
     image_size = window_size // 8 - 10
@@ -62,12 +83,18 @@ def blit_pieces(current_board: dict, image: pygame.image, window: pygame.display
     for k,v in current_board.items():
         
         window.blit(imgdict[v],((k[0] * square_size) + 5, (k[1] * square_size) + 5)) if v in imgdict else None
+    
+    if dragging:
         
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        square_x , square_y = mouse_x // square_size, mouse_y // square_size
+        
+        window.blit(imgdict[dragged_piece], (mouse_x - 50, mouse_y - 50))
         
         
 
 
-def gen_ui(current_board: dict, moves_list: dict, window):
+def gen_ui(current_board: dict, moves: list, player, window, dragging = False, dragged_piece = None, dragged_pos = None, piece = ''):
     
     WHITE = (245, 245, 220)
     BLACK = (120, 151, 76)
@@ -78,9 +105,47 @@ def gen_ui(current_board: dict, moves_list: dict, window):
     # Main loop
     
     for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if not dragging:
+                mouse_x, mouse_y = pygame.mouse.get_pos()
+                square_x = mouse_x // square_size
+                square_y = mouse_y // square_size
+                with open("dragposes.txt", "w") as file:
+                    file.write(str(square_x) + str(square_y))
+                file.close()
+                if 0 <= square_x < 8 and 0 <= square_y < 8:
+                    piece = current_board[(square_x, square_y)]
+                    if piece != '':
+                        dragging = True
+                        dragged_piece = piece
+                        dragged_pos = (square_x, square_y)
+                        print(dragged_pos)
+                        
+            else:
+                mouse_x, mouse_y = pygame.mouse.get_pos()
+                square_x2 = mouse_x // square_size
+                square_y2 = mouse_y // square_size
+                with open("dragposes.txt","r") as file:
+                    data = file.read()
+                    print(data)
+                file.close()
+                data = data.strip("\n")
+                mov = (int(data[0]), int(data[1]))
+                
+                
+                if (mov, (square_x2, square_y2)) in moves:
+                        
+                        if 0 <= square_x2 < 8 and 0 <= square_y2 < 8:
+                            print(dragged_pos)
+                            current_board[(square_x2, square_y2)] = piece
+                            current_board[dragged_pos] = ''
+                            dragging = False
+                            dragged_piece = None
+                            break
+                
 
         # Draw the chessboard
     for row in range(8):
@@ -91,14 +156,18 @@ def gen_ui(current_board: dict, moves_list: dict, window):
                     color = BLACK
                 pygame.draw.rect(window, color, (col * square_size, row * square_size, square_size, square_size))
         # Render the image onto specific squares (example: (0, 0) and (7, 7))
-    blit_pieces(current_board, image, window)
+    blit_pieces(current_board, image, window, dragging, dragged_piece)
         # Update the display
     pygame.display.update()
-        
+    return [dragging, dragged_piece, dragged_pos, piece, ]
           # Bottom-right corner
+i = 0
+dragging = False
+dragged_piece = None
+dragged_pos = None
+piece = ''
+
     
-
-
     
     
 
