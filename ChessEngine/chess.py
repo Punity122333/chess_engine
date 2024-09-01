@@ -15,6 +15,11 @@ from illegal_removal import remove_illegal_moves
 from specialmoves import check_castling, check_en_passant
 from print_board import print_board
 from utility import check_move, update_kings_and_rooks_moved, is_in_check
+from ui import gen_ui, blit_pieces
+import pygame
+
+pygame.init()
+window = pygame.display.set_mode((800, 800))
 
 
 
@@ -55,7 +60,9 @@ bishop_offsets = [(1, 1), (1, -1), (-1, 1), (-1, -1)]
 queen_offsets = rook_offsets + bishop_offsets
 king_offsets = queen_offsets.copy()
 
-
+dragging = False
+dragged_piece = None
+dragged_pos = (0, 0)
 # The code is iterating over the items in the `board` dictionary. For each key-value pair in the
 # dictionary, it checks if the key is present in the `white_locations` dictionary. If it is, it
 # updates the value in the `board` dictionary with the corresponding value from `white_locations`.
@@ -86,69 +93,58 @@ castles, moves_list = check_castling(board, moves_list, has_kings_moved, has_roo
 os.system("cls")
 
 # Game Loop
-
-
+print(board)
+dragging = False
+dragged_piece = None
+dragged_pos = None
+piece = ''
 while True:
-    try:
+    #try:
         
         opponent = 'b' if player == 'w' else 'w'
         
-        print_board(board)
-        print("White's turn!",end=" ") if player == 'w' else print("Black's turn!",end=" ")
-        print(colored("Enter your move (e.g e2e4):","yellow"))
         
-        move = list(input().split(', '))
-        if move[0] == 'quit':
-            break
-        move = parse_move('.'.join(move))
-        
-        if not check_move(move[0], move[1], moves_list, player):
-            os.system("cls")
-            print(colored("Move not possible!","red"))
-            continue
         prev_moves_list = moves_list.copy()
         prev_board = board.copy()
-        make_move(move[0], move[1], board, can_passant, castles, moves_list, player)
+        
         opponent = 'w' if player == 'b' else 'b'
-        os.system("cls")
+        
         check_bishop(board, moves_list)
         check_knight(board, moves_list)
         check_pawn(board, moves_list)
         check_rook(board, moves_list)
         check_queen(board, moves_list)
         check_king(board, moves_list)
-        has_kings_moved, has_rooks_moved = update_kings_and_rooks_moved(move[0], move[1], has_kings_moved, has_rooks_moved, player)[0], update_kings_and_rooks_moved(move[0], move[1], has_kings_moved, has_rooks_moved, player)[1]
+        #has_kings_moved, has_rooks_moved = update_kings_and_rooks_moved(move[0], move[1], has_kings_moved, has_rooks_moved, player)[0], update_kings_and_rooks_moved(move[0], move[1], has_kings_moved, has_rooks_moved, player)[1]
         can_passant, moves_list =  check_en_passant(board, prev_board, moves_list, opponent)[0], check_en_passant(board, prev_board, moves_list, opponent)[1]
         castles, moves_list = check_castling(board, moves_list, has_kings_moved, has_rooks_moved, player)[0], check_castling(board, moves_list, has_kings_moved, has_rooks_moved, player)[1]
         
         
         moves_list = remove_illegal_moves(board, moves_list, can_passant, castles, opponent)
         moves_list = remove_illegal_moves(board, moves_list, can_passant, castles, player)
-        for mov in moves_list[opponent]:
-            if opponent == 'w':
-                if board[mov[0]].isupper():
-                    moves_list[opponent].remove(mov)
-            if opponent == 'b':
-                if board[mov[0]].islower():
-                    moves_list[opponent].remove(mov)
         
         moves_list[opponent] = list(set(moves_list[opponent]))
         moves_list[player] = list(set(moves_list[player]))
-        
+        ls = gen_ui(board, moves_list[player],  player, window, dragging, dragged_piece, dragged_pos, piece)
+        dragging = ls[0]
+        dragged_piece = ls[1]
+        dragged_pos = ls[2]
+        piece = ls[3]
         if moves_list[opponent] == []:
             if is_in_check(board, moves_list, opponent):
                 print_board(board)
                 print(colored(f"White's king is in checkmate! Black wins!","light_green")) if opponent == 'w' else print(colored(f"Black's king is in checkmate! White wins!","light_green"))
                 break
             else:
+                
                 print_board(board)
                 print(colored("It's a stalemate!", "light_green"))
                 break
 
         player = 'b' if player == 'w' else 'w'
-    except Exception as e:
-        os.system("cls")
-        print(colored(f"An error occurred: {e}", "red"))
+    #except Exception as e:
+        #os.system("cls")
+        #print(colored(f"An error occurred: {e}", "red"))
     
 print(colored("Thank you for playing chess!","light_cyan")) 
 print()   
