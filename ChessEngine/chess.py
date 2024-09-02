@@ -4,7 +4,6 @@ from termcolor import colored
 import os
 import subprocess
 from pawn import check_pawn
-from parsing import parse_move
 from knight import check_knight
 from rook import check_rook
 from bishop import check_bishop
@@ -19,7 +18,7 @@ from ui import gen_ui, blit_pieces
 import pygame
 
 pygame.init()
-window = pygame.display.set_mode((800, 800))
+window = pygame.display.set_mode((1200, 800))
 
 
 
@@ -120,8 +119,9 @@ while True:
         castles, moves_list = check_castling(board, moves_list, has_kings_moved, has_rooks_moved, player)[0], check_castling(board, moves_list, has_kings_moved, has_rooks_moved, player)[1]
         
         
-        moves_list = remove_illegal_moves(board, moves_list, can_passant, castles, opponent)
+        
         moves_list = remove_illegal_moves(board, moves_list, can_passant, castles, player)
+            
         
         moves_list[opponent] = list(set(moves_list[opponent]))
         moves_list[player] = list(set(moves_list[player]))
@@ -140,8 +140,10 @@ while True:
                 print_board(board)
                 print(colored("It's a stalemate!", "light_green"))
                 break
-
-        player = 'b' if player == 'w' else 'w'
+        
+        if prev_board != board:
+            player = 'b' if player == 'w' else 'w'
+        
     #except Exception as e:
         #os.system("cls")
         #print(colored(f"An error occurred: {e}", "red"))
