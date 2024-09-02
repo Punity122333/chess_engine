@@ -33,7 +33,7 @@ for k, v in board.items():
         board[k] = black_locations[k]
         
 window = pygame.display.set_mode((800,800))
-def blit_pieces(current_board: dict, image: pygame.image, window: pygame.display, dragging: bool = False, dragged_piece = None):
+def blit_pieces(current_board: dict, image: pygame.image, window: pygame.display, moves: list, dragging: bool = False, dragged_piece = None):
     window_size = 800
     square_size = window_size // 8
     image_size = window_size // 8 - 10
@@ -88,11 +88,16 @@ def blit_pieces(current_board: dict, image: pygame.image, window: pygame.display
         
         mouse_x, mouse_y = pygame.mouse.get_pos()
         square_x , square_y = mouse_x // square_size, mouse_y // square_size
+        with open("dragposes.txt","r") as file:
+            data = file.read()
+            data = data.strip("\n")
+            move = (int(data[0]),int(data[1]))
+        for mov in moves:
+            if mov[0] == move:
+                pygame.draw.rect(window, (210,60,60), (mov[1][0]*square_size, mov[1][1]*square_size, square_size, square_size))
+        pygame.draw.rect(window, (240, 0, 0), (move[0]*square_size, move[1]*square_size, square_size, square_size))
         
         window.blit(imgdict[dragged_piece], (mouse_x - 50, mouse_y - 50))
-        
-        
-
 
 def gen_ui(current_board: dict, moves: list, player, window, dragging = False, dragged_piece = None, dragged_pos = None, piece = ''):
     
@@ -109,43 +114,66 @@ def gen_ui(current_board: dict, moves: list, player, window, dragging = False, d
             pygame.quit()
             sys.exit()
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if not dragging:
-                mouse_x, mouse_y = pygame.mouse.get_pos()
-                square_x = mouse_x // square_size
-                square_y = mouse_y // square_size
-                with open("dragposes.txt", "w") as file:
-                    file.write(str(square_x) + str(square_y))
-                file.close()
-                if 0 <= square_x < 8 and 0 <= square_y < 8:
-                    piece = current_board[(square_x, square_y)]
-                    if piece != '':
-                        dragging = True
-                        dragged_piece = piece
-                        dragged_pos = (square_x, square_y)
-                        print(dragged_pos)
-                        
+            if pygame.mouse.get_pressed()[0]:
+                if not dragging:
+                    mouse_x, mouse_y = pygame.mouse.get_pos()
+                    square_x = mouse_x // square_size
+                    square_y = mouse_y // square_size
+                    with open("dragposes.txt", "w") as file:
+                        file.write(str(square_x) + str(square_y))
+                    file.close()
+                    if 0 <= square_x < 8 and 0 <= square_y < 8:
+                        piece = current_board[(square_x, square_y)]
+                        if piece != '':
+                            dragging = True
+                            dragged_piece = piece
+                            dragged_pos = (square_x, square_y)
+                            
+                            
+                else:
+                    mouse_x, mouse_y = pygame.mouse.get_pos()
+                    square_x2 = mouse_x // square_size
+                    square_y2 = mouse_y // square_size
+                    with open("dragposes.txt","r") as file:
+                        data = file.read()
+                        print(data)
+                    file.close()
+                    data = data.strip("\n")
+                    mov = (int(data[0]), int(data[1]))
+            
+                    if (mov, (square_x2, square_y2)) in moves:
+                            
+                            if 0 <= square_x2 < 8 and 0 <= square_y2 < 8:
+                                if (mov, (square_x2, square_y2)) == ((4,7),(6,7)):
+                                    current_board[(7,7)] = ''
+                                    current_board[(5,7)] = 'r'
+                                if (mov, (square_x2, square_y2)) == ((4,7),(2,7)):
+                                    current_board[(0,7)] = ''
+                                    current_board[(3,7)] = 'r'
+                                if (mov, (square_x2, square_y2)) == ((4,0),(6,0)):
+                                    current_board[(7,0)] = ''
+                                    current_board[(5,0)] = 'R'
+                                if (mov, (square_x2, square_y2)) == ((4,0),(2,0)):
+                                    current_board[(0,0)] = ''
+                                    current_board[(3,0)] = 'R'
+                                current_board[(square_x2, square_y2)] = piece
+                                current_board[dragged_pos] = ''
+                                dragging = False
+                                dragged_piece = None
+                                
+                                break
+                                
+       
             else:
-                mouse_x, mouse_y = pygame.mouse.get_pos()
-                square_x2 = mouse_x // square_size
-                square_y2 = mouse_y // square_size
-                with open("dragposes.txt","r") as file:
-                    data = file.read()
-                    print(data)
-                file.close()
-                data = data.strip("\n")
-                mov = (int(data[0]), int(data[1]))
-                
-                
-                if (mov, (square_x2, square_y2)) in moves:
-                        
-                        if 0 <= square_x2 < 8 and 0 <= square_y2 < 8:
-                            print(dragged_pos)
-                            current_board[(square_x2, square_y2)] = piece
-                            current_board[dragged_pos] = ''
-                            dragging = False
-                            dragged_piece = None
-                            break
-                
+                if dragging:
+                    dragging = False
+                    dragged_piece = None
+                    dragged_pos = (0,0)
+                    piece = ""
+                    with open("dragposes.txt","w") as file:
+                        file.write("")
+                    file.close()
+                    
 
         # Draw the chessboard
     for row in range(8):
@@ -156,19 +184,14 @@ def gen_ui(current_board: dict, moves: list, player, window, dragging = False, d
                     color = BLACK
                 pygame.draw.rect(window, color, (col * square_size, row * square_size, square_size, square_size))
         # Render the image onto specific squares (example: (0, 0) and (7, 7))
-    blit_pieces(current_board, image, window, dragging, dragged_piece)
+    blit_pieces(current_board, image, window, moves, dragging, dragged_piece)
+    pygame.draw.rect(window, (211, 211, 211), (800, 0, 400, 800))
         # Update the display
     pygame.display.update()
     return [dragging, dragged_piece, dragged_pos, piece, ]
           # Bottom-right corner
-i = 0
-dragging = False
-dragged_piece = None
-dragged_pos = None
-piece = ''
 
     
     
     
-
 
