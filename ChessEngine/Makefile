@@ -2,7 +2,7 @@
 CXX = g++
 
 # Compiler flags
-CXXFLAGS = -Wall -g
+CXXFLAGS = -Wall -g -std=c++17 -Wextra -O2
 
 # Target executable name
 TARGET = chess_engine
