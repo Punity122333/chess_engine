@@ -20,7 +20,7 @@ SRCS = ChessEngine/chessEngineCPP/bishop.cpp \
        ChessEngine/chessEngineCPP/queen.cpp \
        ChessEngine/chessEngineCPP/rook.cpp \
        ChessEngine/chessEngineCPP/specialmoves.cpp \
-	     ChessEngine/chessEngineCPP/utility.cpp
+       ChessEngine/chessEngineCPP/utility.cpp
 
 # Object files (same as SRCS but with .o instead of .cpp)
 OBJS = $(SRCS:.cpp=.o)
