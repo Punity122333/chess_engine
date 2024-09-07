@@ -18,7 +18,7 @@ pip install pygame
 
 Have MinGW installed and configured properly. To run the C++ part of the program, run:
 
-```py
+```powershell
 g++ -std=c++17 -o ../chess.exe chess.cpp pawn.cpp knight.cpp bishop.cpp rook.cpp queen.cpp king.cpp illegal_removal.cpp move.cpp parser.cpp specialmoves.cpp utility.cpp castles.cpp -mconsole
 ```
 
